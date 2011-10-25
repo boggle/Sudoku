@@ -44,16 +44,16 @@ The file has the size of the sudoku as the first row, and a list of already assi
 ## Input
 
 <table>
-<tr><td>9,9</td><tr>
-<tr><td>0,1,4</td><tr>
-<tr><td>0,3,6</td><tr>
-<tr><td>0,7,3</td><tr>
-<tr><td>0,8,2</td><tr>
-<tr><td>1,2,8</td><tr>
-<tr><td>1,4,2</td><tr>
-<tr><td>2,0,7</td><tr>
-<tr><td>2,3,8</td><tr>
-<tr><td>3,3,5</td><tr>
+<tr><td>9,9</td></tr>
+<tr><td>0,1,4</td></tr>
+<tr><td>0,3,6</td></tr>
+<tr><td>0,7,3</td></tr>
+<tr><td>0,8,2</td></tr>
+<tr><td>1,2,8</td></tr>
+<tr><td>1,4,2</td></tr>
+<tr><td>2,0,7</td></tr>
+<tr><td>2,3,8</td></tr>
+<tr><td>3,3,5</td></tr>
 </table>
 
 ## Output
