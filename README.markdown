@@ -1,6 +1,6 @@
-Sudokus and Graph
+# Sudokus and Graph
 
-== Description ==
+## Description
 
 Sudoku is a logic-based,  combinatorial number-placement puzzle. The objective is to fill a 9×9 grid with digits so that
 each column, each row, and each of the nine 3×3 sub-grids that compose the grid (also called "boxes", "blocks", "regions",
@@ -19,7 +19,7 @@ or to solve.
 Althought this is not the most optimal solution for a sudoku, is a nice example where you can easy see the capabilities 
 of graph coloring.
 
-== What is graph coloring ==
+## What is graph coloring
 
 Graph (Vertex or Edges) coloring is an assignment of labels traditionally called "colors" to elements of a graph 
 subject to certain constraints. This problem can be seen as a contrain satisfaction problem, lets say for example you 
@@ -30,18 +30,18 @@ All this problems share the same denominator, we have objects with constrains th
 
 For a first overview on graph coloring methods you can take a look to:
 
-http://en.wikipedia.org/wiki/Graph_coloring#Algorithms
++ http://en.wikipedia.org/wiki/Graph_coloring#Algorithms
 
-http://www.math.tu-clausthal.de/Arbeitsgruppen/Diskrete-Optimierung/publications/2002/gca.pdf
++ http://www.math.tu-clausthal.de/Arbeitsgruppen/Diskrete-Optimierung/publications/2002/gca.pdf
 
-http://scienceblogs.com/goodmath/2007/06/graph_coloring_algorithms_1.php
++ http://scienceblogs.com/goodmath/2007/06/graph_coloring_algorithms_1.php
 
-== Example ==
+## Example
 
 So on this exercice we got the definition of a sudoku and aim to get a solution using graph related algoritms. 
 The file has the size of the sudoku as the first row, and a list of already assignated values with the form (row, column, value).
 
-== Input ==
+## Input
 
 9,9
 0,1,4
@@ -54,7 +54,7 @@ The file has the size of the sudoku as the first row, and a list of already assi
 2,3,8
 3,3,5
 
-== Output ==
+## Output
 
 The sudoku matrix
 
