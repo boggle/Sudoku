@@ -33,10 +33,7 @@ import std::bitv;
 // - No automatic lambda enclosure ("bind"). Wonder why?
 // - Would be nice to typecast on bind (i.e. treat uint -> t as u8 -> t)
 // - Multidim array init is way to verbose
-// - It's not clear to me how encapsulation would work without using objects
-// (export exports the whole type, right? Is there something like 
-// go interfaces?)
-// - I really miss a way to write one line if *statements* without else.
+// - Is there something like go interfaces? or do I have to use objects?
 // - I miss classic for. Why drop what people already know and are used to?
 // - Immutable as default but no tail recursion? Why?
 // - How do I write a default "toString" for a data type? Not clear.
@@ -44,13 +41,16 @@ import std::bitv;
 // This code is licensed under the BSD license. No warranty for anything.
 //
 
-export grid, read_grid, solve_grid, write_grid;
+export grid_t, read_grid, solve_grid, write_grid;
 
-// Type  of sudoku grids
+// Internal type  of sudoku grids
 type grid = [[mutable u8]];
 
+// Exported type of sudoku grids
+tag grid_t { grid_ctor(grid); }
+
 // Read a sudoku problem from file f
-fn read_grid(f: io::reader) -> grid {
+fn read_grid(f: io::reader) -> grid_t {
     assert f.read_line() == "9,9"; /* Assert first line is exactly "9,9" */
 
     let g = vec::init_fn({|_i| ret vec::init_elt_mut(0 as u8, 10u);}, 10u);
@@ -63,11 +63,11 @@ fn read_grid(f: io::reader) -> grid {
             g[row][col] = uint::from_str(comps[2]) as u8;
         }
     }
-    ret g;
+    ret grid_ctor(g);
 }
 
 // Solve sudoku grid
-fn solve_grid(g: grid) {
+fn solve_grid(g: grid_t) {
     fn next_color(g: grid, row: u8, col: u8, start_color: u8) -> bool {
         if start_color < 10u8 {
             // Colors not yet used
@@ -97,9 +97,7 @@ fn solve_grid(g: grid) {
     fn drop_colors(g: grid, avail: bitv::t, row: u8, col: u8) {
         fn drop_color(g: grid, colors: bitv::t, row: u8, col: u8) {
             let color = g[row][col];
-            if color != 0u8 {
-                bitv::set(colors, color as uint, false);
-            }
+            if color != 0u8 { bitv::set(colors, color as uint, false); }
         }
 
         let it = bind drop_color(g, avail, _, _);
@@ -120,10 +118,8 @@ fn solve_grid(g: grid) {
     let work: [(u8, u8)] = []; /* Queue of uncolored fields */
     u8::range(0u8, 9u8) { |row|
         u8::range(0u8, 9u8) { |col|
-            let color = g[row][col];
-            if color == 0u8 {
-                work += [(row, col)];
-            } 
+            let color = (*g)[row][col];
+            if color == 0u8 { work += [(row, col)]; } 
         }
     }
     
@@ -131,23 +127,23 @@ fn solve_grid(g: grid) {
     let end = vec::len(work);
     while (ptr < end) {
         let (row, col) = work[ptr];
-        // Is there another color to try? If yes: Advance work list
-        if next_color(g, row, col, g[row][col] + (1 as u8)) { 
+        // Is there another color to try?
+        if next_color(*g, row, col, (*g)[row][col] + (1 as u8)) { 
+            //  Yes: Advance work list
             ptr = ptr + 1u;
-        } else { // If no: redo this field after recoloring it's predecessor
-            if ptr == 0u { // Unless there is none              
-                fail "No solution found for this sudoku";            
-            } 
+        } else { 
+            // No: redo this field aft recoloring pred; unless there is none
+            if ptr == 0u { fail "No solution found for this sudoku"; } 
             ptr = ptr - 1u;
         }
     }
 }
 
-fn write_grid(f: io::writer, g: grid) {
+fn write_grid(f: io::writer, g: grid_t) {
     u8::range(0u8, 9u8) { |row|
-        f.write_str(#fmt("%u", g[row][0] as uint));
-        u8::range(1u8, 9u8) { |col|                      
-            f.write_str(#fmt(" %u", g[row][col] as uint));
+        f.write_str(#fmt("%u", (*g)[row][0] as uint));
+        u8::range(1u8, 9u8) { |col| 
+            f.write_str(#fmt(" %u", (*g)[row][col] as uint));
         }
         f.write_char('\n');
      }
