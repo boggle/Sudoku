@@ -59,11 +59,10 @@ fn read_grid(f: io::reader) -> grid {
     let g: grid = 
         vec::init_fn({|row_index| ret vec::init_elt_mut(0 as u8, 10 as uint);}, 
                      10 as uint);
-    while !f.eof() {
-        let line = str::trim(f.read_line());
-        if str::is_not_empty(line) { // FIXME: Replace with iterator
-            // FIXME: There really should be a more unicode compliant call
-            let comps = str::split(line, ',' as u8);
+    while !f.eof() { // FIXME: Replace with iterator
+        // FIXME: There really should be a more unicode compliant call
+        let comps = str::split(str::trim(f.read_line()), ',' as u8);
+        if vec::len(comps) >= (3 as uint) {
             let row   = uint::from_str(comps[0]) as u8;
             let col   = uint::from_str(comps[1]) as u8;
             g[row][col] = uint::from_str(comps[2]) as u8;
