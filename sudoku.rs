@@ -26,9 +26,6 @@ import std::bitv;
 // Main purpose was to take rust for a spin:
 //
 // - This is really interesting work; but these are the issues I had:
-// - Still more verbose than expected ("untweaked-for-size" equivalent in Java 
-// is 100 lines longer, but this may just be my lack of experience with rust)
-// - Explicit type conversions of constants are annoying, esp. in 0-tests
 // - Lack of "ret" from enclosing function in nested iterators
 // - Lack of loop labels (Complexifies logic, is this due to the 
 // typestate stuff, i.e. to keep DF analysis tractable?)
@@ -56,15 +53,13 @@ type grid = [[mutable u8]];
 fn read_grid(f: io::reader) -> grid {
     assert f.read_line() == "9,9"; /* Assert first line is exactly "9,9" */
 
-    let g: grid = 
-        vec::init_fn({|row_index| ret vec::init_elt_mut(0 as u8, 10 as uint);}, 
-                     10 as uint);
+    let g = vec::init_fn({|_i| ret vec::init_elt_mut(0 as u8, 10u);}, 10u);
     while !f.eof() { // FIXME: Replace with iterator
         // FIXME: There really should be a more unicode compliant call
         let comps = str::split(str::trim(f.read_line()), ',' as u8);
-        if vec::len(comps) >= (3 as uint) {
-            let row   = uint::from_str(comps[0]) as u8;
-            let col   = uint::from_str(comps[1]) as u8;
+        if vec::len(comps) >= 3u {
+            let row     = uint::from_str(comps[0]) as u8;
+            let col     = uint::from_str(comps[1]) as u8;
             g[row][col] = uint::from_str(comps[2]) as u8;
         }
     }
@@ -74,10 +69,10 @@ fn read_grid(f: io::reader) -> grid {
 // Solve sudoku grid
 fn solve_grid(g: grid) {
     fn next_color(g: grid, row: u8, col: u8, start_color: u8) -> bool {
-        if start_color < (10 as u8) {
+        if start_color < 10u8 {
             // Colors not yet used
-            let avail = bitv::create(10 as uint, false);       
-            u8::range(start_color, 10 as u8) { |color|
+            let avail = bitv::create(10u, false);       
+            u8::range(start_color, 10u8) { |color|
                 bitv::set(avail, color as uint, true);
             }
 
@@ -94,7 +89,7 @@ fn solve_grid(g: grid) {
                 i += 1 as uint; /* else */
             }
         }
-        g[row][col] = 0 as u8;
+        g[row][col] = 0u8;
         ret false;
     }
 
@@ -102,58 +97,57 @@ fn solve_grid(g: grid) {
     fn drop_colors(g: grid, avail: bitv::t, row: u8, col: u8) {
         fn drop_color(g: grid, colors: bitv::t, row: u8, col: u8) {
             let color = g[row][col];
-            if color != (0 as u8) {
+            if color != 0u8 {
                 bitv::set(colors, color as uint, false);
             }
         }
 
         let it = bind drop_color(g, avail, _, _);
 
-        u8::range(0 as u8, 9 as u8) { |idx| 
+        u8::range(0u8, 9u8) { |idx| 
             it(idx, col); /* Check same column fields */
             it(row, idx); /* Check same row fields */
         }
 
         // Check same block fields
-        let row0 = (row / (3 as u8)) * (3 as u8);
-        let col0 = (col / (3 as u8)) * (3 as u8);
-        u8::range(row0, row0+(3 as u8)) { |alt_row|
-            u8::range(col0, col0+(3 as u8)) { |alt_col| it(alt_row, alt_col); }
+        let row0 = (row / 3u8) * 3u8;
+        let col0 = (col / 3u8) * 3u8;
+        u8::range(row0, row0 + 3u8) { |alt_row|
+            u8::range(col0, col0 + 3u8) { |alt_col| it(alt_row, alt_col); }
         }
     }
 
     let work: [(u8, u8)] = []; /* Queue of uncolored fields */
-    u8::range(0 as u8, 9 as u8) { |row|
-        u8::range(0 as u8, 9 as u8) { |col|
+    u8::range(0u8, 9u8) { |row|
+        u8::range(0u8, 9u8) { |col|
             let color = g[row][col];
-            if (color == (0 as u8)) {
+            if color == 0u8 {
                 work += [(row, col)];
             } 
         }
     }
     
-    let ptr = 0 as uint;
+    let ptr = 0u;
     let end = vec::len(work);
     while (ptr < end) {
         let (row, col) = work[ptr];
         // Is there another color to try? If yes: Advance work list
         if next_color(g, row, col, g[row][col] + (1 as u8)) { 
-            ptr = ptr + (1 as uint);
+            ptr = ptr + 1u;
         } else { // If no: redo this field after recoloring it's predecessor
-            if ptr == (0 as uint) { // Unless there is none              
+            if ptr == 0u { // Unless there is none              
                 fail "No solution found for this sudoku";            
             } 
-            ptr = ptr - (1 as uint);
+            ptr = ptr - 1u;
         }
     }
 }
 
 fn write_grid(f: io::writer, g: grid) {
-    u8::range(0 as u8, 9 as u8) { |row|
-        f.write_str(uint::str(g[row][0] as uint));
-        u8::range(1 as u8, 9 as u8) { |col|                      
-            f.write_char(' ');            
-            f.write_str(uint::str(g[row][col] as uint));
+    u8::range(0u8, 9u8) { |row|
+        f.write_str(#fmt("%u", g[row][0] as uint));
+        u8::range(1u8, 9u8) { |col|                      
+            f.write_str(#fmt(" %u", g[row][col] as uint));
         }
         f.write_char('\n');
      }
